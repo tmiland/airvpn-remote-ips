@@ -17,8 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Update
+      - name: Update IPv4
         run: bash get_airvpn_ips.sh 4
+      - name: Update IPv6
         run: bash get_airvpn_ips.sh 6
         
       - name: Force add and commit
