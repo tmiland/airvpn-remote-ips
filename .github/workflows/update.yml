@@ -1,0 +1,37 @@
+name: Update AirVPN IPs
+
+on:
+  schedule:
+    # weekly on Sunday at 6 PM
+    - cron: '0 6 * * 0'
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  AIRVPN_API_KEY: ${{ secrets.AIRVPN_API_KEY }}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Update
+        run: bash get_airvpn_ips.sh 4
+        run: bash get_airvpn_ips.sh 6
+        
+      - name: Force add and commit
+        run: |
+          git config --local user.email "kontakt@tmiland.com"
+          git config --local user.name "tmiland"
+          git add -f airvpn_remote_ips_v4.txt
+          git add -f airvpn_remote_ips_v6.txt
+          git status
+          if git status --porcelain | grep -q '^?? \|^A  \|^M  '; then
+            echo "Changes detected, committing..."
+            git commit -m "Update"
+            git push
+          else
+            echo "No changes to commit"
+          fi
